@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>To do list</title>
+		<link rel="stylesheet" href="style.css" />
+		<link rel="preconnect" href="https://fonts.googleapis.com" />
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+		<link
+			href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;1,100;1,300;1,400&display=swap"
+			rel="stylesheet"
+		/>
+		<link
+			rel="stylesheet"
+			href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@48,400,0,0"
+		/>
+	</head>
+	<body>
+		<section id="search">
+			<label for="searchInput" class="search-label"
+				><span class="material-symbols-outlined icon"> search </span></label
+			>
+			<input type="text" id="searchInput" placeholder="Search your list" />
+			<button id="deleteSearchedText" class="btn display-none">
+				<span class="material-symbols-outlined icon"> cancel </span>
+			</button>
+		</section>
+		<div class="buttons-container">
+			<button id="addListButton" class="btn add-remove-btn">+ Add</button>
+			<button id="deleteAllListsButton" class="btn add-remove-btn display-none">
+				<span class="material-symbols-outlined" id="delete-icon"> delete </span
+				>Delete All
+			</button>
+		</div>
+		<section id="lists"></section>
+
+		<div id="todoListContainer">
+			<button class="btn" id="closeListBtn">
+				<span class="material-symbols-outlined close-icon"> close </span>
+			</button>
+			<div id="todoListSubContainer">
+				<div id="inputContainer">
+					<input type="text" id="title" placeholder="Insert a title" />
+
+					<div class="select-box">
+						<div class="options-container">
+							<div class="option">
+								<input type="radio" class="radio" id="books" name="category" />
+								<label for="books">Books</label>
+							</div>
+
+							<div class="option">
+								<input
+									type="radio"
+									class="radio"
+									id="business"
+									name="category"
+								/>
+								<label for="business">Business</label>
+							</div>
+
+							<div class="option">
+								<input
+									type="radio"
+									class="radio"
+									id="education"
+									name="category"
+								/>
+								<label for="education">Education</label>
+							</div>
+
+							<div class="option">
+								<input
+									type="radio"
+									class="radio"
+									id="entertainment"
+									name="category"
+								/>
+								<label for="entertainment">Entertainment</label>
+							</div>
+
+							<div class="option">
+								<input
+									type="radio"
+									class="radio"
+									id="finance"
+									name="category"
+								/>
+								<label for="finance">Finance</label>
+							</div>
+
+							<div class="option">
+								<input
+									type="radio"
+									class="radio"
+									id="food-&-drink"
+									name="category"
+								/>
+								<label for="food-&-drink">Food-&-Drink</label>
+							</div>
+						</div>
+
+						<div id="listCategory"></div>
+					</div>
+
+					<button id="addItemBtn" class="btn add-remove-btn">+Item</button>
+				</div>
+
+				<div id="todosContainer"></div>
+				<div id="checkedArea-container">
+					<span id="totalNrOfcheckedTodo"></span>
+					<div id="checkedTodosContainer"></div>
+				</div>
+			</div>
+			<div id="messageDisplay" class="display-none"></div>
+			<div id="footer">
+				<!-- Color palette -->
+				<div id="colorsContainer" class="menu-container">
+					<div id="color1" class="color"></div>
+					<div id="color2" class="color"></div>
+					<div id="color3" class="color"></div>
+					<div id="color4" class="color"></div>
+					<div id="color5" class="color"></div>
+				</div>
+				<div id="colorsMainContainer" class="main-container">
+					<span class="material-symbols-outlined" id="paletteColor">
+						palette
+					</span>
+				</div>
+
+				<!-- Menu -->
+				<div id="listMenuContainer" class="menu-container">
+					<button id="deleteListBtn" class="btn">
+						<span id="deleteIcon" class="material-symbols-outlined">
+							delete
+						</span>
+						Delete
+					</button>
+					<button id="copyListBtn" class="btn">
+						<span id="copyIcon" class="material-symbols-outlined">
+							content_copy </span
+						>Make a copy
+					</button>
+				</div>
+				<div id="listMenuMainContainer" class="main-container">
+					<span id="listMenuBtn" class="material-symbols-outlined"> list </span>
+				</div>
+			</div>
+		</div>
+		<script src="https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js"></script>
+		<!-- <script src="https://unpkg.com/uuid@latest/dist/umd/uuidv4.min.js"></script> -->
+		<!-- <script src="https://cdn.jsdelivr.net/npm/uuidv4@6.2.13/build/lib/uuidv4.min.js"></script> -->
+
+		<script src="app.js"></script>
+	</body>
+</html>
