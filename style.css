@@ -20,7 +20,7 @@
 }
 body {
 	font-family: 'Roboto', sans-serif;
-	background-color: var(--grayColor);
+	background-color: #333;
 	color: var(--blackColor);
 }
 input {

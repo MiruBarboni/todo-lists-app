@@ -1,114 +1,3 @@
-// const lists = [
-// 	{
-// 		id: '1',
-// 		title: 'Shopping List',
-// 		category: 'Education',
-// 		color: '#ffd7ba',
-// 		todolist: [
-// 			{
-// 				id: '9',
-// 				text: 'milk 200ml',
-// 				isChecked: false,
-// 			},
-// 			{
-// 				id: '89',
-// 				text: ' 10 apples',
-// 				isChecked: true,
-// 			},
-// 			{
-// 				id: '10',
-// 				text: 'bread',
-// 				isChecked: false,
-// 			},
-// 			{
-// 				id: '11',
-// 				text: '2 tomatto souce',
-// 				isChecked: false,
-// 			},
-// 			{
-// 				id: '12',
-// 				text: 'cucumber',
-// 				isChecked: true,
-// 			},
-// 			{
-// 				id: '21',
-// 				text: '2 eggs',
-// 				isChecked: true,
-// 			},
-// 			{
-// 				id: '90',
-// 				text: 'sugar',
-// 				isChecked: true,
-// 			},
-// 		],
-// 	},
-// 	{
-// 		id: '2',
-// 		title: 'Buy books',
-// 		category: 'Books',
-// 		color: '#c9e4ca',
-// 		todolist: [
-// 			{
-// 				id: '13',
-// 				text: 'The Forever House',
-// 				isChecked: false,
-// 			},
-// 			{
-// 				id: '14',
-// 				text: 'My Turn to Make the Tea (Virago Modern Classics)',
-// 				isChecked: true,
-// 			},
-// 		],
-// 	},
-// 	{
-// 		id: '3',
-// 		title: 'Games ',
-// 		category: 'Education',
-// 		color: '#fbf8cc',
-// 		todolist: [
-// 			{
-// 				id: '15',
-// 				text: 'pool',
-// 				isChecked: false,
-// 			},
-// 			{
-// 				id: '16',
-// 				text: 'golf',
-// 				isChecked: true,
-// 			},
-// 			{
-// 				id: '17',
-// 				text: 'baseball',
-// 				isChecked: true,
-// 			},
-// 			{
-// 				id: '18',
-// 				text: 'RtS',
-// 				isChecked: false,
-// 			},
-// 			{
-// 				id: '19',
-// 				text: 'puzzlers',
-// 				isChecked: true,
-// 			},
-// 			{
-// 				id: '20',
-// 				text: 'multuplayer online battle arena',
-// 				isChecked: false,
-// 			},
-// 			{
-// 				id: '23',
-// 				text: 'sandbox',
-// 				isChecked: false,
-// 			},
-// 			{
-// 				id: '24',
-// 				text: 'TPS',
-// 				isChecked: false,
-// 			},
-// 		],
-// 	},
-// ];
 function updateListToLocalStorage() {
 	localStorage.setItem('todoList', JSON.stringify(lists));
 }
@@ -120,7 +9,6 @@ function clearListFromLocalStorage() {
 }
 
 const lists = getListFromLocalStorage();
-
 const listsContainer = document.querySelector('#lists');
 
 const addListButton = document.querySelector('#addListButton');
@@ -161,8 +49,8 @@ const deleteListBtn = document.querySelector('#deleteListBtn');
 const deleteAllListsBtn = document.querySelector('#deleteAllListsButton');
 const copyListBtn = document.querySelector('#copyListBtn');
 const messageDisplay = document.querySelector('#messageDisplay');
+const selectBox = document.querySelector('.select-box');
 
-// use resetElementToContent instead of container.innerHTML = '';
 const resetElementToContent = (element, content) => {
 	element.innerHTML = content;
 };
@@ -172,18 +60,35 @@ listCategory.addEventListener('click', () => {
 });
 
 optionsList.forEach((o) => {
-	o.addEventListener('click', () => {
+	o.addEventListener('click', (e) => {
 		listCategory.innerHTML = o.querySelector('label').innerHTML;
 		optionsContainer.classList.remove('active');
+		listId = e.currentTarget.parentElement.parentElement.dataset.id;
+		listCategoryDOMNodeInsertedHandler(listCategory.innerHTML, listId);
+		console.log({ listCategoryInnerHtml: listCategory.innerHTML });
 	});
 });
+
+function listCategoryDOMNodeInsertedHandler(category, listId) {
+	lists.find((el) => el.id === currentDisplayedId).category = category;
+	const listHtml = getDataSetId(listId);
+	const fieldToUpdate = getChild(listHtml, 2);
+	console.log({ fieldToUpdate, category, listId, listHtml });
+	if (fieldToUpdate) {
+		console.log('here');
+		fieldToUpdate.value = category;
+	}
+
+	updateListToLocalStorage();
+}
 
 copyListBtn.addEventListener('click', (e) => {
 	const copyList = _.cloneDeep(
 		lists.find((el) => el.id === currentDisplayedId)
 	);
-
-	copyList.title = `Copy of ${copyList.title}`;
+	copyList.title
+		? (copyList.title = `Copy of ${copyList.title}`)
+		: (copyList.title = 'Copy of Untitle List');
 	// copyList.id = uuidv4();
 	copyList.id = Math.random().toString();
 	copyList.todolist.forEach((todo) => {
@@ -203,6 +108,8 @@ copyListBtn.addEventListener('click', (e) => {
 	setTimeout(() => {
 		displayElementToNone(messageDisplay);
 	}, 3000);
+
+	updateListToLocalStorage();
 });
 
 const setTodoItemToBeChecked = (
@@ -273,6 +180,80 @@ const calculateTotalNrOfcheckedtodos = () => {
 		}
 	}
 };
+const toDoInputChangeHandler = (e, listId, todoId, toDoInput) => {
+	lists
+		.find((el) => el.id === listId)
+		.todolist.find((todo) => todo.id === todoId).text = e.target.value;
+
+	updateTodoContent(toDoInput);
+};
+
+const toDoCheckboxClickHandler = (
+	e,
+	listId,
+	todoId,
+	toDoContainer,
+	toDoCheckbox
+) => {
+	const todoItem = lists
+		.find((el) => el.id === listId)
+		.todolist.find((todo) => todo.id === todoId);
+
+	const inputField = e.target.nextElementSibling.nextElementSibling;
+	const crtToDoContainer = e.target.parentElement;
+	const crtToDoContainerId = toDoContainer.dataset.id;
+	const fieldToUpdate = document.querySelector(
+		`.todo-container[data-id='${crtToDoContainerId}'`
+	);
+	const todoContainerToUpdate = document.querySelector(
+		`.todos-container[data-id='${listId}']`
+	);
+
+	if (toDoCheckbox.checked) {
+		todoItem.isChecked = true;
+
+		setTodoItemToBeChecked(inputField, crtToDoContainer, checkedContainer);
+
+		if (fieldToUpdate) todoContainerToUpdate.removeChild(fieldToUpdate);
+	} else {
+		todoItem.isChecked = false;
+
+		setTodoItemToBeUnchecked(
+			inputField,
+			crtToDoContainer,
+			todosContainer,
+			checkedContainer
+		);
+
+		createTodoItem(todoItem, todoContainerToUpdate);
+	}
+	updateListToLocalStorage();
+};
+const toDoDeleteBtnClickHandler = (e, listId, todoId, todoElement) => {
+	let todoArray = lists.find((el) => el.id === listId).todolist;
+	todoArray.splice(todoArray.indexOf(todoElement), 1);
+
+	//remove todo from todoListContainer
+	const parentSection = e.target.parentElement.parentElement;
+	const todoElementToRemove = e.target.parentElement;
+	parentSection.removeChild(todoElementToRemove);
+
+	//remove todo from lists section -> todos-container only
+	const todoContainerToRemove = document.querySelector(
+		`.todo-container[data-id='${todoId}']`
+	);
+	const todosContainer = document.querySelector(
+		`.todos-container[data-id='${listId}']`
+	);
+
+	if (todosContainer && todoContainerToRemove) {
+		todosContainer.removeChild(todoContainerToRemove);
+	}
+
+	calculateTotalNrOfcheckedtodos();
+	updateListToLocalStorage();
+};
+
 const createTodoItem = (todoElement, containerElement) => {
 	const toDoContainer = document.createElement('div');
 	const toDoCheckbox = document.createElement('input');
@@ -319,88 +300,19 @@ const createTodoItem = (todoElement, containerElement) => {
 			containerElement.id === 'checkedTodosContainer'
 		) {
 			toDoInput.focus();
-			toDoInput.addEventListener('keyup', (e) => {
-				if (e.key === 'Enter') {
-					addItemsHandler(list.id);
-				}
-			});
-			toDoInput.addEventListener('change', (e) => {
-				lists
-					.find((el) => el.id === list.id)
-					.todolist.find((todo) => todo.id === todoId).text = e.target.value;
 
-				updateTodoContent(toDoInput);
-			});
+			toDoInput.addEventListener('change', (e) =>
+				toDoInputChangeHandler(e, list.id, todoId, toDoInput)
+			);
 
 			toDoCheckbox.addEventListener('click', (e) => {
-				const todoItem = lists
-					.find((el) => el.id === list.id)
-					.todolist.find((todo) => todo.id === todoId);
-
-				const inputField = e.target.nextElementSibling.nextElementSibling;
-				const crtToDoContainer = e.target.parentElement;
-				const crtToDoContainerId = toDoContainer.dataset.id;
-				const fieldToUpdate = document.querySelector(
-					`.todo-container[data-id='${crtToDoContainerId}'`
-				);
-				const todoContainerToUpdate = document.querySelector(
-					`.todos-container[data-id='${list.id}']`
-				);
-
-				if (toDoCheckbox.checked) {
-					todoItem.isChecked = true;
-
-					setTodoItemToBeChecked(
-						inputField,
-						crtToDoContainer,
-						checkedContainer
-					);
-
-					if (fieldToUpdate) todoContainerToUpdate.removeChild(fieldToUpdate);
-				} else {
-					todoItem.isChecked = false;
-
-					setTodoItemToBeUnchecked(
-						inputField,
-						crtToDoContainer,
-						todosContainer,
-						checkedContainer
-					);
-
-					createTodoItem(todoItem, todoContainerToUpdate);
-				}
-				updateListToLocalStorage();
+				const args = [e, list.id, todoId, toDoContainer, toDoCheckbox];
+				toDoCheckboxClickHandler(...args);
 			});
 
-			toDoDeleteBtn.addEventListener('click', (e) => {
-				let todoArray = lists.find((el) => el.id === list.id).todolist;
-				todoArray.splice(todoArray.indexOf(todoElement), 1);
-
-				//remove todo from todoListContainer
-				const parentSection = e.target.parentElement.parentElement;
-				const todoElementToRemove = e.target.parentElement;
-				parentSection.removeChild(todoElementToRemove);
-
-				//remove todo from lists section -> todos-container only
-				const todoContainerToRemove = document.querySelector(
-					`.todo-container[data-id='${todoId}']`
-				);
-				const todosContainer = document.querySelector(
-					`.todos-container[data-id='${list.id}']`
-				);
-				console.log({
-					todoContainerToRemove,
-					todosContainer,
-					todoId,
-					listid: list.id,
-				});
-				if (todosContainer && todoContainerToRemove) {
-					todosContainer.removeChild(todoContainerToRemove);
-				}
-
-				calculateTotalNrOfcheckedtodos();
-				updateListToLocalStorage();
-			});
+			toDoDeleteBtn.addEventListener('click', (e) =>
+				toDoDeleteBtnClickHandler(e, list.id, todoId, todoElement)
+			);
 		}
 		if (containerElement.id === 'checkedTodosContainer') {
 			toDoInput.style.textDecoration = 'line-through';
@@ -411,8 +323,7 @@ const createTodoItem = (todoElement, containerElement) => {
 	}
 };
 
-const getDataSetId = (list, currentDisplayedId) => {
-	const listId = list.id;
+const getDataSetId = (listId) => {
 	const listsHtml = document.querySelectorAll('.list-item');
 	let foundList;
 
@@ -427,7 +338,7 @@ const getDataSetId = (list, currentDisplayedId) => {
 
 	return foundList;
 };
-const setColor = (color, currentDisplayedId) => {
+const setColor = (color) => {
 	lists.find((el) => el.id === currentDisplayedId).color = color;
 	const containerToUpdate = document.querySelector(
 		`.list-item[data-id='${currentDisplayedId}']`
@@ -450,7 +361,71 @@ const displayContent = (container, classNameToAdd, classNameToRemove) => {
 };
 
 let isEditWindowOpen = false;
-const closeToDoListContainer = () => {
+
+const listTitleChangeHandler = (e, list) => {
+	lists.find((el) => el.id === currentDisplayedId).title = e.target.value;
+	const listHtml = getDataSetId(list.id);
+	const fieldToUpdate = getChild(listHtml, 1);
+	if (fieldToUpdate) fieldToUpdate.value = e.target.value;
+	updateListToLocalStorage();
+};
+
+const paletteColorClickHandler = (listColor) => {
+	colorsContainer.classList.add('openMenuAnimation');
+	colorsContainer.classList.remove('closeMenuAnimation');
+	listMenuContainer.classList.remove('openMenuAnimation');
+	listMenuContainer.classList.remove('closeMenuAnimation');
+	colorsContainer.style.backgroundColor = listColor;
+};
+
+const colorClickHandler = (colorObj) => {
+	setColor(colorObj);
+	colorsContainer.style.backgroundColor = colorObj;
+	updateListToLocalStorage();
+};
+
+const listMenuBtnClickHandler = (listColor) => {
+	displayContent(listMenuBtn, 'display-none', 'display-flex');
+
+	displayContent(listMenuContainer, 'openMenuAnimation', 'closeMenuAnimation');
+	listMenuContainer.style.backgroundColor = listColor;
+
+	colorsContainer.classList.remove('openMenuAnimation');
+	colorsContainer.classList.remove('closeMenuAnimation');
+};
+
+const containerClickHandler = (e) => {
+	if (
+		!colorsContainer.contains(e.target) &&
+		!colorsMainContainer.contains(e.target)
+	) {
+		if (colorsContainer.classList.contains('openMenuAnimation')) {
+			displayContent(
+				colorsContainer,
+				'closeMenuAnimation',
+				'openMenuAnimation'
+			);
+			// colorsContainer.classList.add('closeMenuAnimation');
+			// colorsContainer.classList.remove('openMenuAnimation');
+		}
+	}
+	if (
+		!listMenuMainContainer.contains(e.target) &&
+		!listMenuContainer.contains(e.target)
+	) {
+		if (listMenuContainer.classList.contains('openMenuAnimation')) {
+			displayContent(
+				listMenuContainer,
+				'closeMenuAnimation',
+				'openMenuAnimation'
+			);
+			// listMenuContainer.classList.add('closeMenuAnimation');
+			// listMenuContainer.classList.remove('openMenuAnimation');
+		}
+	}
+};
+
+const closeToDoListContainerClickHandler = () => {
 	isEditWindowOpen = false;
 
 	displayElementToNone(container);
@@ -461,12 +436,9 @@ const closeToDoListContainer = () => {
 	resetElementToContent(checkedContainer, '');
 
 	optionsContainer.classList.remove('active');
-	colorsContainer.classList.remove('openMenuAnimation');
-	colorsContainer.classList.remove('closeMenuAnimation');
-	listMenuContainer.classList.remove('openMenuAnimation');
-	listMenuContainer.classList.remove('closeMenuAnimation');
+	colorsContainer.classList.remove('openMenuAnimation', 'closeMenuAnimation');
+	listMenuContainer.classList.remove('openMenuAnimation', 'closeMenuAnimation');
 };
-
 // populate fields with data in todoListContainer and update data if it has changed
 const addTodoListData = (id) => {
 	currentDisplayedId = id;
@@ -491,109 +463,41 @@ const addTodoListData = (id) => {
 
 		calculateTotalNrOfcheckedtodos();
 
-		listTitle.addEventListener('change', (e) => {
-			lists.find((el) => el.id === currentDisplayedId).title = e.target.value;
-			const listHtml = getDataSetId(list, currentDisplayedId);
-			const fieldToUpdate = getChild(listHtml, 1);
-			if (fieldToUpdate) fieldToUpdate.value = e.target.value;
-			updateListToLocalStorage();
-		});
-
-		// select the target node - should be done separately towords the initial declaration of ListCategory
-		let target = document.querySelector('#listCategory');
-
-		let observer = new MutationObserver(function (mutations) {
-			mutations.forEach(function (mutation) {
-				console.log(mutation.type);
-			});
-		});
-		let config = { attributes: true, childList: true, characterData: true };
-
-		observer.observe(listCategory, config);
-		observer.disconnect(); // later, you can stop observing\
-
-		listCategory.addEventListener(
-			'DOMNodeInserted',
-			function (e) {
-				lists.find((el) => el.id === currentDisplayedId).category =
-					e.target.textContent;
-				const listHtml = getDataSetId(list, currentDisplayedId);
-				const fieldToUpdate = getChild(listHtml, 2);
-				if (fieldToUpdate) fieldToUpdate.value = e.target.textContent;
-				updateListToLocalStorage();
-			},
-			false
+		listTitle.addEventListener('change', (e) =>
+			listTitleChangeHandler(e, list)
 		);
 
-		paletteColor.addEventListener('click', (e) => {
-			colorsContainer.classList.add('openMenuAnimation');
-			colorsContainer.classList.remove('closeMenuAnimation');
-			listMenuContainer.classList.remove('openMenuAnimation');
-			listMenuContainer.classList.remove('closeMenuAnimation');
-			colorsContainer.style.backgroundColor = list.color;
-		});
+		paletteColor.addEventListener('click', () =>
+			paletteColorClickHandler(list.color)
+		);
 
 		color1.addEventListener('click', () => {
-			setColor(colorOjb.redColor, currentDisplayedId);
-			colorsContainer.style.backgroundColor = list.color;
-			updateListToLocalStorage();
+			colorClickHandler(colorOjb.redColor);
 		});
 		color2.addEventListener('click', () => {
-			setColor(colorOjb.orangeColor, currentDisplayedId);
-			colorsContainer.style.backgroundColor = list.color;
-			updateListToLocalStorage();
+			colorClickHandler(colorOjb.orangeColor);
 		});
 		color3.addEventListener('click', () => {
-			setColor(colorOjb.yellowColor, currentDisplayedId);
-			colorsContainer.style.backgroundColor = list.color;
-			updateListToLocalStorage();
+			colorClickHandler(colorOjb.yellowColor);
 		});
 		color4.addEventListener('click', () => {
-			setColor(colorOjb.greenColor, currentDisplayedId);
-			colorsContainer.style.backgroundColor = list.color;
-			updateListToLocalStorage();
+			colorClickHandler(colorOjb.greenColor);
 		});
 		color5.addEventListener('click', () => {
-			setColor(colorOjb.blueColor, currentDisplayedId);
-			colorsContainer.style.backgroundColor = list.color;
-			updateListToLocalStorage();
-		});
-		listMenuBtn.addEventListener('click', () => {
-			displayContent(listMenuBtn, 'display-none', 'display-flex');
-			listMenuContainer.style.backgroundColor = list.color;
-			listMenuContainer.classList.add('openMenuAnimation');
-			listMenuContainer.classList.remove('closeMenuAnimation');
-			colorsContainer.classList.remove('openMenuAnimation');
-			colorsContainer.classList.remove('closeMenuAnimation');
-		});
-		container.addEventListener('click', (e) => {
-			if (
-				!colorsContainer.contains(e.target) &&
-				!colorsMainContainer.contains(e.target)
-			) {
-				if (colorsContainer.classList.contains('openMenuAnimation')) {
-					colorsContainer.classList.add('closeMenuAnimation');
-					colorsContainer.classList.remove('openMenuAnimation');
-				}
-			}
-			if (
-				!listMenuMainContainer.contains(e.target) &&
-				!listMenuContainer.contains(e.target)
-			) {
-				if (listMenuContainer.classList.contains('openMenuAnimation')) {
-					listMenuContainer.classList.add('closeMenuAnimation');
-					listMenuContainer.classList.remove('openMenuAnimation');
-				}
-			}
+			colorClickHandler(colorOjb.blueColor);
 		});
 
-		closeListBtn.addEventListener('click', () => {
-			closeToDoListContainer();
-		});
+		listMenuBtn.addEventListener('click', () =>
+			listMenuBtnClickHandler(list.color)
+		);
+
+		container.addEventListener('click', containerClickHandler);
+
+		closeListBtn.addEventListener('click', closeToDoListContainerClickHandler);
 	}
 };
 const removeList = (identifier) => {
-	const listToRemove = lists.findIndex((el, index) => el.id === identifier);
+	const listToRemove = lists.findIndex((el) => el.id === identifier);
 	lists.splice(listToRemove, 1);
 
 	const listToRemoveFromUI = document.querySelector(
@@ -636,11 +540,9 @@ const createList = (el) => {
 
 	let totalNrOfCheckedItems = 0;
 	el.todolist.forEach((todo) => {
-		if (!todo.isChecked) {
-			createTodoItem(todo, toDoSContainer);
-		} else {
-			totalNrOfCheckedItems++;
-		}
+		!todo.isChecked
+			? createTodoItem(todo, toDoSContainer)
+			: totalNrOfCheckedItems++;
 	});
 	if (totalNrOfCheckedItems > 0)
 		checkItemsSpan.textContent = `+${totalNrOfCheckedItems} ticked items`;
@@ -666,6 +568,7 @@ const createList = (el) => {
 			if (!isEditWindowOpen) {
 				isEditWindowOpen = true;
 				addTodoListData(e.currentTarget.dataset.id);
+				selectBox.dataset.id = e.currentTarget.dataset.id;
 				displayElementToFlex(container);
 				container.style.background = el.color;
 			}
@@ -677,7 +580,7 @@ const createList = (el) => {
 	}
 };
 
-const addItemsHandler = (id) => {
+const addItemsHandler = () => {
 	// const newTodoId = uuidv4();
 	const newTodoId = Math.random().toString();
 
@@ -688,13 +591,13 @@ const addItemsHandler = (id) => {
 	};
 
 	lists.forEach((el) => {
-		if (el.id === id) {
+		if (el.id === currentDisplayedId) {
 			el.todolist.unshift(newtodo);
 		}
 	});
 	createTodoItem(newtodo, todosContainer);
 
-	const listId = lists.find((el) => el.id === id).id;
+	const listId = lists.find((el) => el.id === currentDisplayedId).id;
 	const todoContainer = document.querySelector(
 		`.todos-container[data-id='${listId}']`
 	);
@@ -705,9 +608,7 @@ const addItemsHandler = (id) => {
 
 const addItemBtn = document.querySelector('#addItemBtn');
 let currentDisplayedId;
-addItemBtn.addEventListener('click', () => {
-	addItemsHandler(currentDisplayedId);
-});
+addItemBtn.addEventListener('click', addItemsHandler);
 
 addListButton.addEventListener('click', () => {
 	// let uuid = uuidv4();
@@ -719,7 +620,7 @@ addListButton.addEventListener('click', () => {
 		color: '#ead2ac',
 		todolist: [],
 	};
-	//added in list vector
+
 	lists.push(newList);
 
 	createList(newList);
@@ -730,50 +631,28 @@ lists.forEach((el) => {
 	createList(el);
 });
 
-// Search Part
 const searchInput = document.querySelector('#searchInput');
 const deleteSearchedTextBtn = document.querySelector('#deleteSearchedText');
 
-searchInput.addEventListener('keyup', () => {
+const searchInputKeyUpHandler = () => {
 	const searchedValue = searchInput.value.toLowerCase();
 	lists.forEach((list) => {
 		const container = document.querySelector(
 			`.list-item[data-id='${list.id}']`
 		);
-		if (
-			list.title.toLowerCase().indexOf(searchedValue) === -1 &&
-			list.category.toLowerCase().indexOf(searchedValue) === -1 &&
-			!findTodo(list, searchedValue)
-		) {
-			displayElementToNone(container);
-		} else {
-			displayElementToFlex(container);
-		}
+
+		list.title.toLowerCase().indexOf(searchedValue) === -1 &&
+		list.category.toLowerCase().indexOf(searchedValue) === -1 &&
+		!findTodo(list, searchedValue)
+			? displayElementToNone(container)
+			: displayElementToFlex(container);
 	});
 
-	if (searchedValue.length > 0) {
-		displayContent(deleteSearchedTextBtn, 'display-block', 'display-none');
-	} else {
-		displayContent(deleteSearchedTextBtn, 'display-none', 'display-block');
-	}
-});
-deleteSearchedTextBtn.addEventListener('click', () => {
-	searchInput.value = '';
-
-	lists.forEach((list) => {
-		const container = document.querySelector(
-			`.list-item[data-id='${list.id}']`
-		);
-
-		displayElementToFlex(container);
-	});
-	if (searchInput.value > 0) {
-		displayContent(deleteSearchedTextBtn, 'display-block', 'display-none');
-	} else {
-		displayContent(deleteSearchedTextBtn, 'display-none', 'display-block');
-	}
-});
-
+	searchedValue.length > 0
+		? displayContent(deleteSearchedTextBtn, 'display-block', 'display-none')
+		: displayContent(deleteSearchedTextBtn, 'display-none', 'display-block');
+};
+searchInput.addEventListener('keyup', searchInputKeyUpHandler);
 function findTodo(list, searchedValue) {
 	let isFound = false;
 	list.todolist.forEach((todo) => {
@@ -787,15 +666,35 @@ function findTodo(list, searchedValue) {
 	return isFound;
 }
 
-deleteListBtn.addEventListener('click', () => {
+const deleteSearchTextBtnClickHandler = () => {
+	searchInput.value = '';
+
+	lists.forEach((list) => {
+		const container = document.querySelector(
+			`.list-item[data-id='${list.id}']`
+		);
+
+		displayElementToFlex(container);
+	});
+	searchInput.value > 0
+		? displayContent(deleteSearchedTextBtn, 'display-block', 'display-none')
+		: displayContent(deleteSearchedTextBtn, 'display-none', 'display-block');
+};
+deleteSearchedTextBtn.addEventListener(
+	'click',
+	deleteSearchTextBtnClickHandler
+);
+
+const deleteListsBtnClickHandler = () => {
 	removeList(currentDisplayedId);
-	closeToDoListContainer();
+	closeToDoListContainerClickHandler();
 	if (listsContainer) {
 		displayContent(deleteAllListsBtn, 'display-block', 'display-none');
 	}
-});
+};
+deleteListBtn.addEventListener('click', deleteListsBtnClickHandler);
 
-deleteAllListsBtn.addEventListener('click', () => {
+const deleteAllListsBtnClickHandler = () => {
 	lists.forEach((list) => {
 		lists.splice(list);
 	});
@@ -806,4 +705,5 @@ deleteAllListsBtn.addEventListener('click', () => {
 	});
 	displayContent(deleteAllListsBtn, 'display-none', 'display-block');
 	clearListFromLocalStorage();
-});
+};
+deleteAllListsBtn.addEventListener('click', deleteAllListsBtnClickHandler);
