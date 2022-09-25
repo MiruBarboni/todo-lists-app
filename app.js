@@ -65,7 +65,6 @@ optionsList.forEach((o) => {
 		optionsContainer.classList.remove('active');
 		listId = e.currentTarget.parentElement.parentElement.dataset.id;
 		listCategoryDOMNodeInsertedHandler(listCategory.innerHTML, listId);
-		console.log({ listCategoryInnerHtml: listCategory.innerHTML });
 	});
 });
 
@@ -73,9 +72,8 @@ function listCategoryDOMNodeInsertedHandler(category, listId) {
 	lists.find((el) => el.id === currentDisplayedId).category = category;
 	const listHtml = getDataSetId(listId);
 	const fieldToUpdate = getChild(listHtml, 2);
-	console.log({ fieldToUpdate, category, listId, listHtml });
+
 	if (fieldToUpdate) {
-		console.log('here');
 		fieldToUpdate.value = category;
 	}
 
@@ -578,6 +576,8 @@ const createList = (el) => {
 	if (listsContainer) {
 		displayContent(deleteAllListsBtn, 'display-block', 'display-none');
 	}
+
+	return listContainer;
 };
 
 const addItemsHandler = () => {
@@ -623,8 +623,9 @@ addListButton.addEventListener('click', () => {
 
 	lists.push(newList);
 
-	createList(newList);
+	const listContainer = createList(newList);
 	addTodoListData(uuid);
+	listContainer.click();
 });
 
 lists.forEach((el) => {
